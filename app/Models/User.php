@@ -2,44 +2,43 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'store_id', 'role_id', 'name', 'username', 'email',
+        'employee_code', 'is_super_admin', 'is_active', 'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'is_super_admin'    => 'boolean',
+        'is_active'         => 'boolean',
+        'password'          => 'hashed',
     ];
+
+    public function store() { return $this->belongsTo(Store::class); }
+    public function role()  { return $this->belongsTo(Role::class); }
+
+    public function hasPermission(string $key): bool
+    {
+        if (! $this->role_id) {
+            return false;
+        }
+
+        $keys = Cache::remember("perms.{$this->role_id}", 300,
+            fn () => $this->role->permissions()->pluck('key')->all()
+        );
+
+        return in_array($key, $keys);
+    }
 }
