@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\LogsActivity;
 
 class Role extends Model
 {
+    use LogsActivity;
     protected $fillable = ['store_id', 'name'];
 
     public function store()       { return $this->belongsTo(Store::class); }

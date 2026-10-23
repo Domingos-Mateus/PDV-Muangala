@@ -6,6 +6,11 @@ use App\Models\Permission;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use App\Models\ActivityLog;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\Event;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,6 +18,18 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+         Event::listen(Login::class, fn ($e) => ActivityLog::record(
+        $e->user, 'login', 'Entrou no sistema', [], $e->user->store_id, $e->user->id));
+
+    Event::listen(Logout::class, function ($e) {
+        if ($e->user) {
+            ActivityLog::record($e->user, 'logout', 'Saiu do sistema', [], $e->user->store_id, $e->user->id);
+        }
+    });
+
+    Event::listen(Failed::class, fn ($e) => ActivityLog::record(
+        null, 'login_failed', 'Tentativa de login falhada',
+        ['username' => $e->credentials['username'] ?? null], $e->user?->store_id, $e->user?->id));
         // O super admin pode tudo
         Gate::before(fn ($user) => $user->is_super_admin ? true : null);
 

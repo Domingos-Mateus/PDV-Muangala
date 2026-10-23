@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -15,6 +17,8 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        $request->merge(['username' => strtolower(trim((string) $request->input('username')))]);
+
         $data = $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
@@ -26,6 +30,13 @@ class LoginController extends Controller
         );
 
         if (! $ok) {
+            $user = User::where('username', $data['username'])->first();
+
+            if ($user && ! $user->is_active && Hash::check($data['password'], $user->password)) {
+                return back()->withErrors(['username' => 'Conta desactivada. Fala com o gerente.'])
+                             ->onlyInput('username');
+            }
+
             return back()->withErrors(['username' => 'Utilizador ou senha incorrectos.'])
                          ->onlyInput('username');
         }

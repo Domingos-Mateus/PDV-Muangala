@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use LogsActivity;
 
 class Store extends Model
 {
+    use LogsActivity;
     protected $fillable = ['name', 'address', 'phone', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];

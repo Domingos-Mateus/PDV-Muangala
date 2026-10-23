@@ -34,6 +34,7 @@
             @endcan
             @can('users.manage')
                 <a href="{{ route('roles.index') }}">Perfis</a>
+                <a href="{{ route('users.index') }}">Utilizadores</a>
             @endcan
         </div>
         <div class="flex items-center gap-4 text-sm">
