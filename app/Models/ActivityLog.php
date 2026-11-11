@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class ActivityLog extends Model
 {
@@ -42,4 +43,35 @@ class ActivityLog extends Model
             report($e); // o registo nunca pode partir a aplicação
         }
     }
+
+    /** Linha só no ficheiro (consultas, recusas, erros). Não grava na base de dados. */
+    public static function dirty(Model $model): array
+{
+    $hidden = ['password', 'remember_token'];
+    $antes = $depois = [];
+
+    foreach ($model->getDirty() as $campo => $novo) {
+        if ($campo === 'updated_at') {
+            continue;
+        }
+
+        $oculto = in_array($campo, $hidden, true);
+        $antes[$campo]  = $oculto ? '***' : $model->getOriginal($campo);
+        $depois[$campo] = $oculto ? '***' : $novo;
+    }
+
+    return ['antes' => $antes, 'depois' => $depois];
+}
+public static function trace(string $method, string $message = '', array $ctx = [], string $level = 'info'): void
+{
+    try {
+        Log::channel('atividade')->{$level}("[{$method}] {$message}", [
+            'user'  => auth()->id(),
+            'store' => app()->bound('currentStore') ? app('currentStore')?->id : null,
+            'ip'    => request()->ip(),
+        ] + $ctx);
+    } catch (\Throwable $e) {
+        report($e);
+    }
+}
 }

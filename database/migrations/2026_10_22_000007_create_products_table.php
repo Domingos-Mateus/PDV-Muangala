@@ -13,16 +13,19 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('store_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name');
-            $table->string('sku')->unique();
-            $table->string('barcode')->nullable()->unique();
+            $table->string('sku');
+            $table->string('barcode')->nullable();
             $table->string('unit')->default('un');
             $table->decimal('cost_price', 12, 2)->default(0);
             $table->decimal('sale_price', 12, 2)->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            $table->index('name');
+            $table->unique(['store_id', 'sku']);
+            $table->unique(['store_id', 'barcode']);
+            $table->index(['store_id', 'name']);
         });
     }
 

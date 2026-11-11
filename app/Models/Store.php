@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use LogsActivity;
+use App\Models\Concerns\LogsActivity;
 
 class Store extends Model
 {

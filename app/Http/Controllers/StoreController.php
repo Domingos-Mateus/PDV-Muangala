@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class StoreController extends Controller
 {
     public function index()
     {
+        ActivityLog::trace('StoreController@index', 'Listou lojas');
+
         return view('stores.index', [
             'stores' => Store::withCount('users')->orderBy('name')->get(),
         ]);
@@ -17,23 +21,65 @@ class StoreController extends Controller
 
     public function create()
     {
+        ActivityLog::trace('StoreController@create', 'Abriu o formulário de nova loja');
+
         return view('stores.form', ['store' => new Store(['is_active' => true])]);
     }
 
     public function store(Request $request)
     {
-        Store::create($this->data($request));
+        ActivityLog::trace('StoreController@store', 'A criar loja');
+
+        try {
+            $store = Store::create($this->data($request));
+
+            ActivityLog::record($store, 'created', "Loja «{$store->name}»", [
+                'depois' => $store->only(['name', 'address', 'phone', 'is_active']),
+            ]);
+        } catch (ValidationException $e) {
+            ActivityLog::trace('StoreController@store', 'Validação falhou', ['erros' => $e->errors()], 'warning');
+            throw $e;
+        } catch (HttpException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            ActivityLog::trace('StoreController@store', 'Erro ao criar loja', ['erro' => $e->getMessage()], 'error');
+            throw $e;
+        }
+
         return redirect()->route('stores.index')->with('ok', 'Loja criada.');
     }
 
     public function edit(Store $store)
     {
+        ActivityLog::trace('StoreController@edit', "Abriu a edição da loja «{$store->name}»", ['store_id' => $store->id]);
+
         return view('stores.form', compact('store'));
     }
 
     public function update(Request $request, Store $store)
     {
-        $store->update($this->data($request, $store));
+        ActivityLog::trace('StoreController@update', "A actualizar loja «{$store->name}»", ['store_id' => $store->id]);
+
+        try {
+            $store->fill($this->data($request, $store));
+
+            if ($store->isDirty()) {
+                $props = ActivityLog::dirty($store);
+                $store->save();
+                ActivityLog::record($store, 'updated', "Loja «{$store->name}»", $props);
+            } else {
+                ActivityLog::trace('StoreController@update', 'Sem alterações', ['store_id' => $store->id]);
+            }
+        } catch (ValidationException $e) {
+            ActivityLog::trace('StoreController@update', 'Validação falhou', ['erros' => $e->errors()], 'warning');
+            throw $e;
+        } catch (HttpException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            ActivityLog::trace('StoreController@update', 'Erro ao actualizar loja', ['erro' => $e->getMessage()], 'error');
+            throw $e;
+        }
+
         return redirect()->route('stores.index')->with('ok', 'Loja actualizada.');
     }
 

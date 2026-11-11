@@ -123,6 +123,13 @@ return [
             'handler' => NullHandler::class,
         ],
 
+                'atividade' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/atividade.log'),
+            'level' => 'debug',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],

@@ -4,6 +4,7 @@ namespace App\Models\Concerns;
 
 use App\Models\ActivityLog;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 trait LogsActivity
 {

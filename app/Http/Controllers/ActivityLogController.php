@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 class ActivityLogController extends Controller
 {
     public function index(Request $request)
-    {
+{
+    ActivityLog::trace('ActivityLogController@index', 'Consultou os registos', $request->only(['store_id', 'user_id', 'action', 'from', 'to']));
+
         $me     = auth()->user();
         $stores = $me->is_super_admin ? Store::orderBy('name')->get() : collect();
 
@@ -39,9 +41,10 @@ class ActivityLogController extends Controller
         ]);
     }
 
-    public const LABELS = [
+        public const LABELS = [
         'created' => 'Criou', 'updated' => 'Editou', 'deleted' => 'Apagou',
         'permissions' => 'Permissões', 'login' => 'Entrada', 'logout' => 'Saída',
         'login_failed' => 'Login falhado',
+        'activated' => 'Activou', 'deactivated' => 'Desactivou',
     ];
 }
