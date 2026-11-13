@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\BelongsToStore;
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Supplier extends Model
 {
-    protected $fillable = ['name', 'nif', 'phone', 'email', 'address', 'is_active'];
-    use HasFactory;
+    use BelongsToStore, LogsActivity;
+
+    protected $fillable = ['store_id', 'name', 'nif', 'phone', 'email', 'address', 'is_active'];
+
+    protected $casts = ['is_active' => 'boolean'];
+
+    public function purchases() { return $this->hasMany(Purchase::class); }
 }

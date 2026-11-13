@@ -11,6 +11,26 @@ use Illuminate\Support\Facades\DB;
 
 class StockService
 {
+    /** Acerta o estoque para uma quantidade contada. Devolve null se não houver diferença. */
+public function setTo(int $storeId, int $productId, float $target, ?string $note = null): ?StockMovement
+{
+    return DB::transaction(function () use ($storeId, $productId, $target, $note) {
+        ProductStock::withoutGlobalScopes()->firstOrCreate([
+            'store_id' => $storeId, 'product_id' => $productId,
+        ]);
+
+        $stock = ProductStock::withoutGlobalScopes()
+            ->where('store_id', $storeId)->where('product_id', $productId)
+            ->lockForUpdate()->firstOrFail();
+
+        $delta = round($target - (float) $stock->qty, 3);
+        if ($delta == 0.0) {
+            return null;
+        }
+
+        return $this->move($storeId, $productId, MovementType::Adjustment, $delta, null, null, $note);
+    });
+}
     public function in(int $storeId, int $productId, MovementType $type, float $qty,
         ?Model $reference = null, ?float $unitCost = null, ?string $note = null): StockMovement
     {

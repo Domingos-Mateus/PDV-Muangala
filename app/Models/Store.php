@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class Store extends Model
 {
     use LogsActivity;
+
     protected $fillable = ['name', 'address', 'phone', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];
@@ -29,6 +30,9 @@ class Store extends Model
         });
     }
 
-    public function roles() { return $this->hasMany(Role::class); }
-    public function users() { return $this->hasMany(User::class); }
+    public function roles()      { return $this->hasMany(Role::class); }
+    public function users()      { return $this->hasMany(User::class); }
+    public function products()   { return $this->hasMany(Product::class); }
+    public function categories() { return $this->hasMany(Category::class); }
+    public function suppliers()  { return $this->hasMany(Supplier::class); }
 }

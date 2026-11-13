@@ -11,9 +11,11 @@ use Illuminate\Support\Facades\Hash;
 class LoginController extends Controller
 {
     public function show()
-    {
-        return view('auth.login');
-    }
+{
+    return response()
+        ->view('auth.login')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+}
 
     public function login(Request $request)
     {

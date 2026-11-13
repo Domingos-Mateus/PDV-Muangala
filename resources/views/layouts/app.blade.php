@@ -21,13 +21,19 @@
                 <a href="#">Vendas</a>
             @endcan
             @can('products.view')
-                <a href="#">Produtos</a>
+                <a href="{{ route('products.index') }}">Produtos</a>
+            @endcan
+            @can('categories.manage')
+                <a href="{{ route('categories.index') }}">Categorias</a>
             @endcan
             @can('stock.view')
-                <a href="#">Estoque</a>
+                <a href="{{ route('stock.index') }}">Estoque</a>
             @endcan
             @can('purchases.view')
-                <a href="#">Compras</a>
+                <a href="{{ route('purchases.index') }}">Compras</a>
+            @endcan
+            @can('suppliers.manage')
+                <a href="{{ route('suppliers.index') }}">Fornecedores</a>
             @endcan
             @can('super-admin')
                 <a href="{{ route('stores.index') }}">Lojas</a>
@@ -100,6 +106,16 @@
     </script>
 
     @livewireScripts
+
+    <script>
+        // mantém a sessão viva enquanto a página estiver aberta
+        setInterval(() => {
+            fetch('{{ route('dashboard') }}', {
+                method: 'HEAD',
+                credentials: 'same-origin'
+            });
+        }, 10 * 60 * 1000);
+    </script>
 </body>
 
 </html>
