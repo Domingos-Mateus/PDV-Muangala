@@ -15,13 +15,19 @@
         <div class="flex items-center gap-6">
             <a href="{{ route('dashboard') }}" class="font-bold">PDV</a>
             @can('sales.create')
-                <a href="#">Vender</a>
+                <a href="{{ route('pdv.index') }}">Vender</a>
             @endcan
             @can('sales.view')
-                <a href="#">Vendas</a>
+                <a href="{{ route('sales.index') }}">Vendas</a>
             @endcan
             @can('products.view')
                 <a href="{{ route('products.index') }}">Produtos</a>
+            @endcan
+            @can('cash.operate')
+                <a href="{{ route('cash.current') }}">Caixa</a>
+            @endcan
+            @can('cash.manage')
+                <a href="{{ route('cash.sessions') }}">Turnos</a> <a href="{{ route('cash.registers.index') }}">Caixas</a>
             @endcan
             @can('categories.manage')
                 <a href="{{ route('categories.index') }}">Categorias</a>

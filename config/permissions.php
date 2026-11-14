@@ -17,6 +17,7 @@ return [
         'sales.create' => 'Registar vendas',
         'sales.view'   => 'Ver vendas',
         'sales.cancel' => 'Cancelar vendas',
+        'sales.discount' => 'Aplicar desconto nas vendas',
     ],
     'purchases' => [
         'suppliers.manage'  => 'Gerir fornecedores',
@@ -32,4 +33,18 @@ return [
         'Gerente'     => ['*'],
         'Funcionário' => ['products.view', 'stock.view', 'sales.create', 'sales.view'],
     ],
+
+    'cash' => [
+    'cash.operate' => 'Abrir e fechar o seu caixa, sangrias e suprimentos',
+    'cash.manage'  => 'Gerir caixas e ver todos os turnos',
+],
+
+'reports' => [
+    'reports.view' => 'Ver painel e todas as vendas da loja (lucro, funcionários)',
+],
+
+'role_templates' => [
+    'Gerente'     => ['*'],
+    'Funcionário' => ['products.view', 'stock.view', 'sales.create', 'sales.view', 'cash.operate'],
+],
 ];

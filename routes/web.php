@@ -11,6 +11,10 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\CashController;
+use App\Http\Controllers\CashRegisterController;
+use App\Http\Controllers\SaleController;
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -19,6 +23,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('vendas', [SaleController::class, 'index'])->middleware('can:sales.view')->name('sales.index');
+Route::get('vendas/{sale}', [SaleController::class, 'show'])->middleware('can:sales.view')->name('sales.show');
+Route::post('vendas/{sale}/cancelar', [SaleController::class, 'cancel'])->middleware('can:sales.cancel')->name('sales.cancel');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/', fn () => view('dashboard'))->name('dashboard');
@@ -79,3 +86,23 @@ Route::post('compras', [PurchaseController::class, 'store'])->middleware('can:pu
 Route::get('compras/{purchase}', [PurchaseController::class, 'show'])->middleware('can:purchases.view')->name('purchases.show');
 Route::post('compras/{purchase}/receber', [PurchaseController::class, 'receive'])->middleware('can:purchases.receive')->name('purchases.receive');
 Route::post('compras/{purchase}/cancelar', [PurchaseController::class, 'cancel'])->middleware('can:purchases.create')->name('purchases.cancel');
+
+
+Route::middleware('can:cash.operate')->group(function () {
+    Route::get('caixa', [CashController::class, 'current'])->name('cash.current');
+    Route::post('caixa/abrir', [CashController::class, 'open'])->name('cash.open');
+    Route::post('caixa/movimento', [CashController::class, 'movement'])->name('cash.movement');
+    Route::get('caixa/fechar', [CashController::class, 'closeForm'])->name('cash.close.form');
+    Route::post('caixa/fechar', [CashController::class, 'close'])->name('cash.close');
+});
+
+Route::middleware('can:cash.manage')->group(function () {
+    Route::get('turnos', [CashController::class, 'sessions'])->name('cash.sessions');
+    Route::get('caixas', [CashRegisterController::class, 'index'])->name('cash.registers.index');
+    Route::post('caixas', [CashRegisterController::class, 'store'])->name('cash.registers.store');
+    Route::put('caixas/{register}', [CashRegisterController::class, 'update'])->name('cash.registers.update');
+    Route::patch('caixas/{register}/estado', [CashRegisterController::class, 'toggle'])->name('cash.registers.toggle');
+});
+
+Route::get('vender', [SaleController::class, 'pdv'])->middleware('can:sales.create')->name('pdv.index');
+Route::get('vendas/{sale}/recibo', [SaleController::class, 'receipt'])->name('sales.receipt');
