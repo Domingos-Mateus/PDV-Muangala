@@ -14,6 +14,10 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\CashRegisterController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\BillingController;
 
 
 Route::middleware('guest')->group(function () {
@@ -29,6 +33,39 @@ Route::post('vendas/{sale}/cancelar', [SaleController::class, 'cancel'])->middle
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::get('/', fn () => view('dashboard'))->name('dashboard');
+
+    Route::middleware('can:services.manage')->group(function () {
+    Route::get('servicos', [ServiceController::class, 'index'])->name('services.index');
+    Route::post('servicos', [ServiceController::class, 'store'])->name('services.store');
+    Route::put('servicos/{service}', [ServiceController::class, 'update'])->name('services.update');
+    Route::patch('servicos/{service}/estado', [ServiceController::class, 'toggle'])->name('services.toggle');
+});
+
+Route::middleware('can:customers.manage')->group(function () {
+    Route::get('clientes', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('clientes/novo', [CustomerController::class, 'create'])->name('customers.create');
+    Route::post('clientes', [CustomerController::class, 'store'])->name('customers.store');
+    Route::get('clientes/{customer}/editar', [CustomerController::class, 'edit'])->name('customers.edit');
+    Route::put('clientes/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::patch('clientes/{customer}/estado', [CustomerController::class, 'toggle'])->name('customers.toggle');
+});
+
+Route::middleware('can:services.manage')->group(function () {
+    Route::get('contratos', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::get('contratos/novo', [SubscriptionController::class, 'create'])->name('subscriptions.create');
+    Route::post('contratos', [SubscriptionController::class, 'store'])->name('subscriptions.store');
+    Route::patch('contratos/{subscription}/estado', [SubscriptionController::class, 'status'])->name('subscriptions.status');
+});
+
+Route::get('cobrancas', [BillingController::class, 'report'])->middleware('can:billing.view')->name('billing.report');
+Route::get('cobrancas/exportar', [BillingController::class, 'export'])->middleware('can:billing.view')->name('billing.export');
+Route::get('cobrancas/{receipt}', [BillingController::class, 'show'])->middleware('can:billing.view')->name('billing.show');
+Route::post('cobrancas/{receipt}/cancelar', [BillingController::class, 'cancel'])->middleware('can:billing.cancel')->name('billing.cancel');
+
+
+Route::get('cobrar', [BillingController::class, 'collect'])->middleware('can:billing.collect')->name('billing.collect');
+Route::get('devedores', [BillingController::class, 'debtors'])->middleware('can:billing.view')->name('billing.debtors');
+Route::get('cobrancas/recibo/{receipt}', [BillingController::class, 'receipt'])->name('billing.receipt');
 });
 
 Route::middleware('can:super-admin')->group(function () {

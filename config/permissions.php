@@ -47,4 +47,18 @@ return [
     'Gerente'     => ['*'],
     'Funcionário' => ['products.view', 'stock.view', 'sales.create', 'sales.view', 'cash.operate'],
 ],
+
+'billing' => [
+    'customers.manage' => 'Gerir clientes',
+    'services.manage'  => 'Gerir serviços e contratos',
+    'billing.view'     => 'Ver cobranças, recibos e devedores',
+    'billing.collect'  => 'Receber pagamentos de serviços no caixa',
+    'billing.cancel' => 'Cancelar recibos de cobrança',
+],
+
+'role_templates' => [
+    'Gerente'     => ['*'],
+    'Funcionário' => ['products.view', 'stock.view', 'sales.create', 'sales.view', 'cash.operate', 'billing.collect'],
+],
+
 ];

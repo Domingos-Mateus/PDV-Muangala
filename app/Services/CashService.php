@@ -57,6 +57,7 @@ class CashService
     }
 
     /** Valores do turno. 'expected' é o dinheiro que devia estar na gaveta. */
+        /** Valores do turno. 'expected' é o dinheiro que devia estar na gaveta. */
     public function summary(CashSession $session): array
     {
         $cashSales = (float) DB::table('payments')
@@ -65,6 +66,13 @@ class CashService
             ->where('sales.status', 'completed')
             ->where('payments.method', 'cash')
             ->sum('payments.amount');
+
+        $billingCash = (float) DB::table('billing_receipt_payments')
+            ->join('billing_receipts', 'billing_receipts.id', '=', 'billing_receipt_payments.billing_receipt_id')
+            ->where('billing_receipts.cash_session_id', $session->id)
+            ->where('billing_receipts.status', 'completed')
+            ->where('billing_receipt_payments.method', 'cash')
+            ->sum('billing_receipt_payments.amount');
 
         $moves = CashMovement::withoutGlobalScopes()->where('cash_session_id', $session->id)
             ->selectRaw("COALESCE(SUM(CASE WHEN type='supply' THEN amount END),0) as supplies,
@@ -75,11 +83,12 @@ class CashService
         $withdrawals = (float) $moves->withdrawals;
 
         return [
-            'opening'     => (float) $session->opening_amount,
-            'cash_sales'  => round($cashSales, 2),
-            'supplies'    => $supplies,
-            'withdrawals' => $withdrawals,
-            'expected'    => round((float) $session->opening_amount + $cashSales + $supplies - $withdrawals, 2),
+            'opening'      => (float) $session->opening_amount,
+            'cash_sales'   => round($cashSales, 2),
+            'billing_cash' => round($billingCash, 2),
+            'supplies'     => $supplies,
+            'withdrawals'  => $withdrawals,
+            'expected'     => round((float) $session->opening_amount + $cashSales + $billingCash + $supplies - $withdrawals, 2),
         ];
     }
 

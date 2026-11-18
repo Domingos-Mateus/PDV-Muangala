@@ -41,6 +41,24 @@
             @can('suppliers.manage')
                 <a href="{{ route('suppliers.index') }}">Fornecedores</a>
             @endcan
+            @can('services.manage')
+                <a href="{{ route('services.index') }}">Serviços</a>
+            @endcan
+            @can('customers.manage')
+                <a href="{{ route('customers.index') }}">Clientes</a>
+            @endcan
+            @can('services.manage')
+                <a href="{{ route('subscriptions.index') }}">Contratos</a>
+            @endcan
+            @can('billing.collect')
+                <a href="{{ route('billing.collect') }}">Cobrar</a>
+            @endcan
+            @can('billing.view')
+                <a href="{{ route('billing.debtors') }}">Devedores</a>
+            @endcan
+            @can('billing.view')
+                <a href="{{ route('billing.report') }}">Cobranças</a>
+            @endcan
             @can('super-admin')
                 <a href="{{ route('stores.index') }}">Lojas</a>
             @endcan
